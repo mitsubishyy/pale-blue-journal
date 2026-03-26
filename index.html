@@ -599,7 +599,11 @@
       background: linear-gradient(90deg, #7b9cff, #c47aff);
       z-index: 1001;
       transition: width 0.1s;
-      display: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #progress-bar.active {
+      opacity: 1;
     }
 
     /* ===== FOOTER ===== */
@@ -937,7 +941,7 @@
       const navLink = document.getElementById('nav-' + pageId);
       if (navLink) navLink.classList.add('active');
       onArticlePage = false;
-      progressBar.style.display = 'none';
+      progressBar.classList.remove('active');
       progressBar.style.width = '0%';
       window.scrollTo(0, 0);
     }
@@ -947,7 +951,7 @@
       document.getElementById('article-' + slug).classList.add('active');
       document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
       onArticlePage = true;
-      progressBar.style.display = 'block';
+      progressBar.classList.add('active');
       progressBar.style.width = '0%';
       window.scrollTo(0, 0);
     }
