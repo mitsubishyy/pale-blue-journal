@@ -362,12 +362,10 @@
     /* ===== ABOUT TEASER ===== */
     .about-teaser {
       padding: 2rem;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(96, 165, 250, 0.15);
       border-radius: 12px;
-      background: var(--bg-card);
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(96,165,250,0.08) 0%, rgba(129,140,248,0.08) 100%);
+      margin-bottom: 2.5rem;
     }
     .about-teaser h3 {
       font-family: 'Space Grotesk', sans-serif;
@@ -669,6 +667,13 @@
     <!-- ===== HOME PAGE ===== -->
     <div class="page active" id="page-home">
 
+      <!-- ABOUT TEASER -->
+      <div class="about-teaser">
+        <h3>About This Journal</h3>
+        <p>Pale Blue Journal is a collection of reflections on the universe and our place within it. Inspired by Carl Sagan's vision of Earth as a "pale blue dot," each article explores the beauty, mystery, and scale of the cosmos.</p>
+        <a class="teaser-link" onclick="showPage('about')">Learn more &rarr;</a>
+      </div>
+
       <!-- ROTATING QUOTE -->
       <div class="hero-quote">
         <blockquote id="hero-quote-text">"The cosmos is within us. We are made of star stuff. We are a way for the universe to know itself."</blockquote>
@@ -703,13 +708,6 @@
           <p class="article-excerpt">From ancient civilisations mapping constellations to modern telescopes peering billions of years into the past, humans have always been drawn to the night sky. What is it about the cosmos that calls to us?</p>
           <span class="read-more">Read more &rarr;</span>
         </div>
-      </div>
-
-      <!-- ABOUT TEASER -->
-      <div class="about-teaser">
-        <h3>About This Journal</h3>
-        <p>Pale Blue Journal is a collection of reflections on the universe and our place within it. Inspired by Carl Sagan's vision of Earth as a "pale blue dot," each article explores the beauty, mystery, and scale of the cosmos.</p>
-        <a class="teaser-link" onclick="showPage('about')">Learn more &rarr;</a>
       </div>
 
       <!-- SUBSCRIBE -->
