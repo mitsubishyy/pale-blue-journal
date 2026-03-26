@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pale Blue Journal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --text-primary: #e8ecf4;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent: #60a5fa;
+      --accent-soft: rgba(96, 165, 250, 0.12);
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(96, 165, 250, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* Stars background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 30% 65%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 15% 85%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 45% 50%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1.5px 1.5px at 60% 75%, rgba(96,165,250,0.4), transparent),
+        radial-gradient(1.5px 1.5px at 20% 50%, rgba(96,165,250,0.3), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .site-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .site-tagline {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    nav {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 400;
+      transition: color 0.3s;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--accent);
+    }
+
+    /* Main content */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* Home page */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .featured-article {
+      margin-bottom: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .featured-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .article-card {
+      cursor: pointer;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      transition: all 0.3s ease;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .article-card .article-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .article-card .article-excerpt {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .article-card .read-more {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* Article page */
+    .article-header {
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .article-header .article-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .article-header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 500;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+
+    .article-header .article-subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    .article-body {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .article-body p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-body h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin: 2.5rem 0 1rem;
+    }
+
+    .article-body blockquote {
+      border-left: 2px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .article-body img {
+      width: 100%;
+      border-radius: 8px;
+      margin: 2rem 0;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    /* About page */
+    .about-content {
+      max-width: 600px;
+    }
+
+    .about-content h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-content p {
+      color: var(--text-secondary);
+      margin-bottom: 1.2rem;
+      font-size: 0.95rem;
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .site-title { font-size: 1.6rem; }
+      header { padding: 2rem 1.5rem 1.5rem; }
+      main { padding: 2rem 1.5rem; }
+      .article-card { padding: 1.5rem; }
+      .article-card h2 { font-size: 1.2rem; }
+      .article-header h1 { font-size: 1.5rem; }
+      nav { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 class="site-title"><a href="#" onclick="showPage('home')">Pale Blue Journal</a></h1>
+    <p class="site-tagline">Exploring the cosmos, one thought at a time</p>
+    <nav>
+      <a href="#" onclick="showPage('home')" class="active" id="nav-home">Journal</a>
+      <a href="#" onclick="showPage('about')" id="nav-about">About</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+
+      <div class="featured-article">
+        <div class="featured-label">Latest Entry</div>
+        <div class="article-card" onclick="showArticle('the-silence-between-stars')">
+          <div class="article-date">26 March 2026</div>
+          <h2>The Silence Between Stars</h2>
+          <p class="article-excerpt">Space is not truly empty. Between the stars lies a canvas of radiation, dust, and the faintest whispers of matter. What does this cosmic silence tell us about the nature of the universe itself?</p>
+          <span class="read-more">Read more &rarr;</span>
+        </div>
+      </div>
+
+      <div class="article-card" onclick="showArticle('why-we-look-up')">
+        <div class="article-date">26 March 2026</div>
+        <h2>Why We Look Up</h2>
+        <p class="article-excerpt">From ancient civilisations mapping constellations to modern telescopes peering billions of years into the past, humans have always been drawn to the night sky. What is it about the cosmos that calls to us?</p>
+        <span class="read-more">Read more &rarr;</span>
+      </div>
+
+    </div>
+
+    <!-- ABOUT PAGE -->
+    <div class="page" id="page-about">
+      <div class="about-content">
+        <h1>About</h1>
+        <p>Pale Blue Journal is a space for exploring the universe and our place within it. From black holes and distant galaxies to the quiet wonder of a clear night sky, this journal is a collection of reflections on the cosmos.</p>
+        <p>Inspired by Carl Sagan's vision of Earth as a "pale blue dot," this journal aims to capture the beauty, mystery, and scale of the universe in a way that feels both grounded and awe inspiring.</p>
+        <p>New articles are published regularly. If you find something here that makes you pause and look up at the sky, then this journal has done its job.</p>
+      </div>
+    </div>
+
+    <!-- ARTICLE: The Silence Between Stars -->
+    <div class="page" id="article-the-silence-between-stars">
+      <a href="#" class="back-link" onclick="showPage('home')">&larr; Back to Journal</a>
+      <div class="article-header">
+        <div class="article-date">26 March 2026</div>
+        <h1>The Silence Between Stars</h1>
+        <p class="article-subtitle">The void is not as empty as it seems</p>
+      </div>
+      <div class="article-body">
+        <p>When we think of space, we often imagine a vast and empty darkness. A vacuum with nothing in it. But the truth is far more interesting. The space between stars is alive with activity, filled with faint traces of matter, energy, and the remnants of ancient cosmic events.</p>
+
+        <h2>The Interstellar Medium</h2>
+        <p>The space between stars, known as the interstellar medium, is a thin soup of gas and dust. Most of it is hydrogen, the simplest and most abundant element in the universe. Though incredibly sparse (sometimes just one atom per cubic centimetre), this material is the raw ingredient from which new stars are born.</p>
+        <p>Scattered throughout are tiny grains of dust, each one smaller than a grain of sand. These particles may be small, but they play a crucial role in the chemistry of the cosmos, acting as surfaces where molecules form and combine.</p>
+
+        <h2>Echoes of the Big Bang</h2>
+        <p>Filling every corner of the universe is the cosmic microwave background radiation: the afterglow of the Big Bang itself. This faint light has been travelling for over 13 billion years, stretched by the expansion of the universe into microwave wavelengths. It is the oldest light we can observe, a snapshot of the universe when it was just 380,000 years old.</p>
+
+        <blockquote>The cosmos is within us. We are made of star stuff. We are a way for the universe to know itself.</blockquote>
+
+        <h2>Dark Matter and Dark Energy</h2>
+        <p>Perhaps the most extraordinary thing about the space between stars is what we cannot see. Around 27% of the universe is made up of dark matter, a mysterious substance that does not emit, absorb, or reflect light. We know it exists because of its gravitational influence on galaxies and galaxy clusters, bending the paths of light and holding cosmic structures together.</p>
+        <p>Even more puzzling is dark energy, which makes up roughly 68% of the universe. It is the force driving the accelerating expansion of the cosmos, pushing galaxies further apart with every passing moment. We understand almost nothing about it, and yet it dominates the fate of everything.</p>
+
+        <h2>A Universe of Whispers</h2>
+        <p>The silence between stars is not silence at all. It is a chorus of radiation, a web of invisible matter, and a canvas upon which the entire story of the universe is written. Every photon travelling through the void carries information about where it has been and what it has passed through.</p>
+        <p>To look at the dark sky between the stars is not to see nothing. It is to see everything we have yet to understand.</p>
+      </div>
+    </div>
+
+    <!-- ARTICLE: Why We Look Up -->
+    <div class="page" id="article-why-we-look-up">
+      <a href="#" class="back-link" onclick="showPage('home')">&larr; Back to Journal</a>
+      <div class="article-header">
+        <div class="article-date">26 March 2026</div>
+        <h1>Why We Look Up</h1>
+        <p class="article-subtitle">The ancient pull of the night sky</p>
+      </div>
+      <div class="article-body">
+        <p>There is something deeply human about looking up at the night sky. It is one of the few experiences that connects us to every generation that came before. The same stars that guided ancient sailors across oceans are the ones we see from our back gardens today.</p>
+
+        <h2>Ancient Eyes on the Sky</h2>
+        <p>Long before telescopes or space probes, people watched the sky with careful attention. The Babylonians recorded the movements of planets. The Egyptians aligned their pyramids with the stars. Indigenous Australians used the constellations to navigate and to pass down stories that have survived for tens of thousands of years.</p>
+        <p>The sky was not just a backdrop. It was a calendar, a compass, and a source of meaning. Eclipses were omens. Comets were messengers. The movements of the heavens shaped agriculture, religion, and the rhythm of daily life.</p>
+
+        <h2>The Copernican Shift</h2>
+        <p>For most of human history, we believed the Earth was the centre of everything. The sun, the moon, and the stars all revolved around us. It was a comforting idea, one that placed humanity at the heart of creation.</p>
+        <p>When Copernicus proposed that the Earth orbited the sun, it was more than a scientific correction. It was a philosophical earthquake. Suddenly, we were not at the centre. We were one world among many, circling an ordinary star in an unimaginably large universe.</p>
+
+        <h2>What the Telescope Revealed</h2>
+        <p>When Galileo turned his telescope to the sky in 1609, the universe expanded before our eyes. He saw mountains on the Moon, moons orbiting Jupiter, and countless stars invisible to the naked eye. Each discovery pushed the boundaries of what we thought was possible.</p>
+        <p>Today, telescopes like the James Webb Space Telescope peer billions of years into the past, capturing light from galaxies that formed shortly after the Big Bang. We can now see the universe not just as it is, but as it was: a time machine built from mirrors and light.</p>
+
+        <h2>The Overview Effect</h2>
+        <p>Astronauts who see Earth from space often describe a profound shift in perspective. The borders, the conflicts, the divisions that seem so important on the surface all vanish from orbit. What remains is a fragile, beautiful world floating in an endless dark.</p>
+        <p>This feeling, known as the overview effect, is perhaps the purest expression of why we look up. Not to escape the world, but to understand it better. To see ourselves in context. To feel both impossibly small and deeply connected to something far greater than ourselves.</p>
+
+        <blockquote>Look again at that dot. That's here. That's home. That's us.</blockquote>
+
+        <p>We look up because we always have. Because the sky asks questions that never grow old. Because somewhere in the vast dark between the stars, there might be answers we have not yet imagined.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    &copy; 2026 Pale Blue Journal
+  </footer>
+
+  <script>
+    function showPage(pageId) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      // Show target page
+      document.getElementById('page-' + pageId).classList.add('active');
+      // Update nav
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      const navLink = document.getElementById('nav-' + pageId);
+      if (navLink) navLink.classList.add('active');
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    function showArticle(slug) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      // Show article
+      document.getElementById('article-' + slug).classList.add('active');
+      // Update nav
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+  </script>
+
+</body>
+</html>
