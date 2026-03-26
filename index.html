@@ -55,11 +55,12 @@
 
     .site-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.4rem;
-      font-weight: 300;
-      letter-spacing: 0.15em;
+      font-size: 3rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       color: #4da6ff;
+      text-shadow: 0 0 20px rgba(77, 166, 255, 0.4), 0 0 60px rgba(77, 166, 255, 0.15);
       margin-bottom: 0.5rem;
     }
 
@@ -282,7 +283,7 @@
 
     /* Responsive */
     @media (max-width: 600px) {
-      .site-title { font-size: 1.6rem; }
+      .site-title { font-size: 2rem; }
       header { padding: 2rem 1.5rem 1.5rem; }
       main { padding: 2rem 1.5rem; }
       .article-card { padding: 1.5rem; }
@@ -423,13 +424,13 @@
 
       // Create twinkling stars
       const stars = [];
-      for (let i = 0; i < 150; i++) {
+      for (let i = 0; i < 200; i++) {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 1.5 + 0.3,
-          opacity: Math.random() * 0.7 + 0.3,
-          twinkleSpeed: Math.random() * 0.02 + 0.005,
+          radius: Math.random() * 1.8 + 0.3,
+          opacity: Math.random() * 0.8 + 0.2,
+          twinkleSpeed: Math.random() * 0.06 + 0.02,
           phase: Math.random() * Math.PI * 2
         });
       }
@@ -459,7 +460,7 @@
         const time = Date.now() * 0.001;
         for (const star of stars) {
           const twinkle = Math.sin(time * star.twinkleSpeed * 60 + star.phase);
-          const opacity = star.opacity * (0.6 + 0.4 * twinkle);
+          const opacity = star.opacity * (0.2 + 0.8 * ((twinkle + 1) / 2));
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
