@@ -590,6 +590,18 @@
       font-size: 0.95rem;
     }
 
+    /* ===== READING PROGRESS BAR ===== */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #7b9cff, #c47aff);
+      z-index: 1001;
+      transition: width 0.1s;
+      display: none;
+    }
+
     /* ===== FOOTER ===== */
     footer {
       position: relative;
@@ -619,6 +631,7 @@
 </head>
 <body>
 
+  <div id="progress-bar"></div>
   <div id="nasa-bg"></div>
   <canvas id="stars-canvas"></canvas>
 
@@ -905,12 +918,27 @@
     }
 
     // ===== NAVIGATION =====
+    // ===== PROGRESS BAR =====
+    const progressBar = document.getElementById('progress-bar');
+    let onArticlePage = false;
+
+    window.addEventListener('scroll', () => {
+      if (!onArticlePage) return;
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = progress + '%';
+    });
+
     function showPage(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById('page-' + pageId).classList.add('active');
       document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
       const navLink = document.getElementById('nav-' + pageId);
       if (navLink) navLink.classList.add('active');
+      onArticlePage = false;
+      progressBar.style.display = 'none';
+      progressBar.style.width = '0%';
       window.scrollTo(0, 0);
     }
 
@@ -918,6 +946,9 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById('article-' + slug).classList.add('active');
       document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      onArticlePage = true;
+      progressBar.style.display = 'block';
+      progressBar.style.width = '0%';
       window.scrollTo(0, 0);
     }
 
