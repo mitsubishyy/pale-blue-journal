@@ -6,11 +6,7 @@
   <title>Pale Blue Journal</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
       --bg-primary: #0a0e17;
@@ -23,6 +19,7 @@
       --accent-soft: rgba(96, 165, 250, 0.12);
       --border: rgba(255, 255, 255, 0.06);
       --border-hover: rgba(96, 165, 250, 0.3);
+      --sidebar-width: 280px;
     }
 
     body {
@@ -36,27 +33,155 @@
     /* NASA starmap background */
     #nasa-bg {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: url('https://svs.gsfc.nasa.gov/vis/a000000/a004800/a004856/starmap_random_2020_4k_gal_print.jpg') center center / cover no-repeat;
       opacity: 0.25;
       z-index: 0;
     }
 
-    /* Stars canvas */
     #stars-canvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: 0;
     }
 
-    /* Header */
+    /* ===== SIDEBAR ===== */
+    .sidebar-toggle {
+      position: fixed;
+      top: 1.2rem;
+      left: 1.2rem;
+      z-index: 1000;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      width: 42px; height: 42px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.3s;
+    }
+    .sidebar-toggle:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-secondary);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 998;
+    }
+    .sidebar-overlay.open { display: block; }
+
+    .sidebar {
+      position: fixed;
+      top: 0; left: calc(-1 * var(--sidebar-width));
+      width: var(--sidebar-width);
+      height: 100%;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      z-index: 999;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      padding: 2rem 1.5rem;
+    }
+    .sidebar.open { left: 0; }
+
+    .sidebar-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .sidebar-close:hover { color: var(--text-primary); }
+
+    .sidebar-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-section {
+      margin-bottom: 2rem;
+    }
+    .sidebar-section h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    .sidebar-category {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: color 0.3s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-category:hover { color: var(--accent); }
+    .sidebar-category .cat-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cat-deep-space { background: #818cf8; }
+    .cat-cosmology { background: #f472b6; }
+    .cat-solar-system { background: #fb923c; }
+    .cat-night-sky { background: #34d399; }
+    .cat-philosophy { background: #a78bfa; }
+
+    .sidebar-article {
+      display: block;
+      padding: 0.6rem 0;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s;
+      border-bottom: 1px solid var(--border);
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-article:hover { color: var(--accent); }
+    .sidebar-article-title { display: block; font-weight: 400; }
+    .sidebar-article-meta {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ===== HEADER ===== */
     header {
       position: relative;
       z-index: 1;
@@ -75,11 +200,7 @@
       text-shadow: 0 0 20px rgba(77, 166, 255, 0.4), 0 0 60px rgba(77, 166, 255, 0.15);
       margin-bottom: 0.5rem;
     }
-
-    .site-title a {
-      color: inherit;
-      text-decoration: none;
-    }
+    .site-title a { color: inherit; text-decoration: none; }
 
     .site-tagline {
       font-size: 0.85rem;
@@ -95,7 +216,6 @@
       justify-content: center;
       gap: 2rem;
     }
-
     nav a {
       color: var(--text-secondary);
       text-decoration: none;
@@ -105,12 +225,9 @@
       font-weight: 400;
       transition: color 0.3s;
     }
+    nav a:hover, nav a.active { color: var(--accent); }
 
-    nav a:hover, nav a.active {
-      color: var(--accent);
-    }
-
-    /* Main content */
+    /* ===== MAIN ===== */
     main {
       position: relative;
       z-index: 1;
@@ -119,17 +236,38 @@
       padding: 3rem 2rem;
     }
 
-    /* Home page */
     .page { display: none; }
     .page.active { display: block; }
 
-    .featured-article {
-      margin-bottom: 3rem;
-      padding-bottom: 3rem;
+    /* ===== HERO QUOTE ===== */
+    .hero-quote {
+      text-align: center;
+      padding: 2.5rem 1rem 3rem;
+      margin-bottom: 2.5rem;
       border-bottom: 1px solid var(--border);
     }
+    .hero-quote blockquote {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: var(--text-primary);
+      font-style: italic;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 1rem;
+      opacity: 1;
+      transition: opacity 0.6s ease;
+    }
+    .hero-quote .quote-author {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: opacity 0.6s ease;
+    }
 
-    .featured-label {
+    /* ===== ARTICLE CARDS ===== */
+    .section-label {
       font-size: 0.7rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
@@ -147,19 +285,43 @@
       transition: all 0.3s ease;
       margin-bottom: 1.5rem;
     }
-
     .article-card:hover {
       border-color: var(--border-hover);
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     }
 
+    .article-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
     .article-card .article-date {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 0.75rem;
+    }
+    .article-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .tag-deep-space { background: rgba(129,140,248,0.15); color: #818cf8; }
+    .tag-cosmology { background: rgba(244,114,182,0.15); color: #f472b6; }
+    .tag-solar-system { background: rgba(251,146,60,0.15); color: #fb923c; }
+    .tag-night-sky { background: rgba(52,211,153,0.15); color: #34d399; }
+    .tag-philosophy { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+    .reading-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
     }
 
     .article-card h2 {
@@ -170,13 +332,11 @@
       color: var(--text-primary);
       line-height: 1.3;
     }
-
     .article-card .article-excerpt {
       font-size: 0.9rem;
       color: var(--text-secondary);
       line-height: 1.6;
     }
-
     .article-card .read-more {
       display: inline-block;
       margin-top: 1rem;
@@ -187,12 +347,152 @@
       font-weight: 500;
     }
 
-    /* Article page */
+    .featured-article {
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .articles-grid {
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ===== ABOUT TEASER ===== */
+    .about-teaser {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .about-teaser h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+    .about-teaser p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .about-teaser .teaser-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    /* ===== SUBSCRIBE ===== */
+    .subscribe-section {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      margin-bottom: 3rem;
+    }
+    .subscribe-section h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    .subscribe-section p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    .subscribe-form {
+      display: flex;
+      gap: 0.75rem;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .subscribe-form input {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .subscribe-form input:focus {
+      border-color: var(--accent);
+    }
+    .subscribe-form input::placeholder {
+      color: var(--text-muted);
+    }
+    .subscribe-form button {
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+    .subscribe-form button:hover { opacity: 0.85; }
+
+    /* ===== FUN FACT ===== */
+    .fun-fact {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.06) 0%, rgba(129,140,248,0.06) 100%);
+      margin-bottom: 2rem;
+    }
+    .fun-fact-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+    .fun-fact h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+    .fun-fact p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 0.6rem;
+    }
+    .fun-fact p:last-child { margin-bottom: 0; }
+
+    /* ===== ARTICLE PAGE ===== */
     .article-header {
       margin-bottom: 2.5rem;
       text-align: center;
     }
-
     .article-header .article-date {
       font-size: 0.75rem;
       color: var(--text-muted);
@@ -200,7 +500,6 @@
       text-transform: uppercase;
       margin-bottom: 1rem;
     }
-
     .article-header h1 {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 2rem;
@@ -208,7 +507,6 @@
       line-height: 1.3;
       margin-bottom: 1rem;
     }
-
     .article-header .article-subtitle {
       font-size: 1rem;
       color: var(--text-secondary);
@@ -220,11 +518,7 @@
       line-height: 1.8;
       color: var(--text-secondary);
     }
-
-    .article-body p {
-      margin-bottom: 1.5rem;
-    }
-
+    .article-body p { margin-bottom: 1.5rem; }
     .article-body h2 {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.3rem;
@@ -232,7 +526,6 @@
       color: var(--text-primary);
       margin: 2.5rem 0 1rem;
     }
-
     .article-body blockquote {
       border-left: 2px solid var(--accent);
       padding-left: 1.5rem;
@@ -240,7 +533,6 @@
       color: var(--text-secondary);
       font-style: italic;
     }
-
     .article-body img {
       width: 100%;
       border-radius: 8px;
@@ -258,30 +550,23 @@
       margin-bottom: 2rem;
       transition: color 0.3s;
     }
+    .back-link:hover { color: var(--accent); }
 
-    .back-link:hover {
-      color: var(--accent);
-    }
-
-    /* About page */
-    .about-content {
-      max-width: 600px;
-    }
-
+    /* ===== ABOUT PAGE ===== */
+    .about-content { max-width: 600px; }
     .about-content h1 {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.8rem;
       font-weight: 500;
       margin-bottom: 1.5rem;
     }
-
     .about-content p {
       color: var(--text-secondary);
       margin-bottom: 1.2rem;
       font-size: 0.95rem;
     }
 
-    /* Footer */
+    /* ===== FOOTER ===== */
     footer {
       position: relative;
       z-index: 1;
@@ -293,7 +578,7 @@
       letter-spacing: 0.1em;
     }
 
-    /* Responsive */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 600px) {
       .site-title { font-size: 2rem; }
       header { padding: 2rem 1.5rem 1.5rem; }
@@ -302,6 +587,9 @@
       .article-card h2 { font-size: 1.2rem; }
       .article-header h1 { font-size: 1.5rem; }
       nav { gap: 1.5rem; }
+      .hero-quote blockquote { font-size: 1.1rem; }
+      .subscribe-form { flex-direction: column; }
+      .subscribe-form button { width: 100%; }
     }
   </style>
 </head>
@@ -310,6 +598,63 @@
   <div id="nasa-bg"></div>
   <canvas id="stars-canvas"></canvas>
 
+  <!-- SIDEBAR TOGGLE -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Open menu">&#9776;</button>
+
+  <!-- SIDEBAR OVERLAY -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="toggleSidebar()">&times;</button>
+    <div class="sidebar-title">Pale Blue Journal</div>
+
+    <div class="sidebar-section">
+      <h3>Categories</h3>
+      <button class="sidebar-category" onclick="filterCategory('all')">
+        <span class="cat-dot" style="background:var(--accent)"></span> All Articles
+      </button>
+      <button class="sidebar-category" onclick="filterCategory('deep-space')">
+        <span class="cat-dot cat-deep-space"></span> Deep Space
+      </button>
+      <button class="sidebar-category" onclick="filterCategory('cosmology')">
+        <span class="cat-dot cat-cosmology"></span> Cosmology
+      </button>
+      <button class="sidebar-category" onclick="filterCategory('night-sky')">
+        <span class="cat-dot cat-night-sky"></span> The Night Sky
+      </button>
+      <button class="sidebar-category" onclick="filterCategory('philosophy')">
+        <span class="cat-dot cat-philosophy"></span> Philosophy
+      </button>
+      <button class="sidebar-category" onclick="filterCategory('solar-system')">
+        <span class="cat-dot cat-solar-system"></span> Our Solar System
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>All Articles</h3>
+      <button class="sidebar-article" onclick="showArticle('the-silence-between-stars'); toggleSidebar();">
+        <span class="sidebar-article-title">The Silence Between Stars</span>
+        <span class="sidebar-article-meta">Deep Space &middot; 5 min read</span>
+      </button>
+      <button class="sidebar-article" onclick="showArticle('why-we-look-up'); toggleSidebar();">
+        <span class="sidebar-article-title">Why We Look Up</span>
+        <span class="sidebar-article-meta">Philosophy &middot; 5 min read</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Pages</h3>
+      <button class="sidebar-article" onclick="showPage('home'); toggleSidebar();">
+        <span class="sidebar-article-title">Home</span>
+      </button>
+      <button class="sidebar-article" onclick="showPage('about'); toggleSidebar();">
+        <span class="sidebar-article-title">About</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- HEADER -->
   <header>
     <h1 class="site-title"><a href="#" onclick="showPage('home')">Pale Blue Journal</a></h1>
     <p class="site-tagline">Exploring the cosmos, one thought at a time</p>
@@ -321,29 +666,74 @@
 
   <main>
 
-    <!-- HOME PAGE -->
+    <!-- ===== HOME PAGE ===== -->
     <div class="page active" id="page-home">
 
+      <!-- ROTATING QUOTE -->
+      <div class="hero-quote">
+        <blockquote id="hero-quote-text">"The cosmos is within us. We are made of star stuff. We are a way for the universe to know itself."</blockquote>
+        <div class="quote-author" id="hero-quote-author">Carl Sagan</div>
+      </div>
+
+      <!-- FEATURED ARTICLE -->
       <div class="featured-article">
-        <div class="featured-label">Latest Entry</div>
-        <div class="article-card" onclick="showArticle('the-silence-between-stars')">
-          <div class="article-date">26 March 2026</div>
+        <div class="section-label">Latest Entry</div>
+        <div class="article-card" data-category="deep-space" onclick="showArticle('the-silence-between-stars')">
+          <div class="article-card-meta">
+            <span class="article-date">26 March 2026</span>
+            <span class="article-tag tag-deep-space">Deep Space</span>
+            <span class="reading-time">5 min read</span>
+          </div>
           <h2>The Silence Between Stars</h2>
           <p class="article-excerpt">Space is not truly empty. Between the stars lies a canvas of radiation, dust, and the faintest whispers of matter. What does this cosmic silence tell us about the nature of the universe itself?</p>
           <span class="read-more">Read more &rarr;</span>
         </div>
       </div>
 
-      <div class="article-card" onclick="showArticle('why-we-look-up')">
-        <div class="article-date">26 March 2026</div>
-        <h2>Why We Look Up</h2>
-        <p class="article-excerpt">From ancient civilisations mapping constellations to modern telescopes peering billions of years into the past, humans have always been drawn to the night sky. What is it about the cosmos that calls to us?</p>
-        <span class="read-more">Read more &rarr;</span>
+      <!-- MORE ARTICLES -->
+      <div class="articles-grid">
+        <div class="section-label">More Entries</div>
+        <div class="article-card" data-category="philosophy" onclick="showArticle('why-we-look-up')">
+          <div class="article-card-meta">
+            <span class="article-date">26 March 2026</span>
+            <span class="article-tag tag-philosophy">Philosophy</span>
+            <span class="reading-time">5 min read</span>
+          </div>
+          <h2>Why We Look Up</h2>
+          <p class="article-excerpt">From ancient civilisations mapping constellations to modern telescopes peering billions of years into the past, humans have always been drawn to the night sky. What is it about the cosmos that calls to us?</p>
+          <span class="read-more">Read more &rarr;</span>
+        </div>
+      </div>
+
+      <!-- ABOUT TEASER -->
+      <div class="about-teaser">
+        <h3>About This Journal</h3>
+        <p>Pale Blue Journal is a collection of reflections on the universe and our place within it. Inspired by Carl Sagan's vision of Earth as a "pale blue dot," each article explores the beauty, mystery, and scale of the cosmos.</p>
+        <a class="teaser-link" onclick="showPage('about')">Learn more &rarr;</a>
+      </div>
+
+      <!-- SUBSCRIBE -->
+      <div class="subscribe-section">
+        <h3>Stay Connected to the Cosmos</h3>
+        <p>Get new articles delivered to your inbox. No spam, just the universe.</p>
+        <div class="subscribe-form">
+          <input type="email" placeholder="your@email.com" aria-label="Email address">
+          <button type="button">Subscribe</button>
+        </div>
+      </div>
+
+      <!-- FUN FACT -->
+      <div class="fun-fact">
+        <div class="fun-fact-label">What You Are Looking At</div>
+        <h3>A Real View of Our Galaxy</h3>
+        <p>The background of this site is a real image of the Milky Way, captured and compiled by NASA's Scientific Visualization Studio. It shows our galaxy in galactic coordinates, meaning you are looking at the actual structure of the Milky Way as it wraps around us. The bright band across the centre is the galactic plane, where hundreds of billions of stars are concentrated.</p>
+        <p>The twinkling stars overlaid on top are plotted from the Hipparcos star catalog, a real astronomical database compiled by the European Space Agency's Hipparcos satellite mission. Each star is placed at its true celestial position, with its real brightness and colour. The brightest ones you see, like Sirius, Vega, Betelgeuse, and Rigel, are the same stars you can spot on a clear night.</p>
+        <p>The shooting stars are modelled on the Perseid meteor shower, one of the most famous annual meteor events visible from Earth. Real Perseids radiate outward from a point in the constellation Perseus (their "radiant"), exactly as they do here. In nature, these meteors are tiny grains of dust left behind by Comet Swift Tuttle, burning up at around 59 kilometres per second as they hit our atmosphere. Every streak you see on this page follows that same pattern.</p>
       </div>
 
     </div>
 
-    <!-- ABOUT PAGE -->
+    <!-- ===== ABOUT PAGE ===== -->
     <div class="page" id="page-about">
       <div class="about-content">
         <h1>About</h1>
@@ -353,11 +743,11 @@
       </div>
     </div>
 
-    <!-- ARTICLE: The Silence Between Stars -->
+    <!-- ===== ARTICLE: The Silence Between Stars ===== -->
     <div class="page" id="article-the-silence-between-stars">
       <a href="#" class="back-link" onclick="showPage('home')">&larr; Back to Journal</a>
       <div class="article-header">
-        <div class="article-date">26 March 2026</div>
+        <div class="article-date">26 March 2026 &middot; Deep Space &middot; 5 min read</div>
         <h1>The Silence Between Stars</h1>
         <p class="article-subtitle">The void is not as empty as it seems</p>
       </div>
@@ -383,11 +773,11 @@
       </div>
     </div>
 
-    <!-- ARTICLE: Why We Look Up -->
+    <!-- ===== ARTICLE: Why We Look Up ===== -->
     <div class="page" id="article-why-we-look-up">
       <a href="#" class="back-link" onclick="showPage('home')">&larr; Back to Journal</a>
       <div class="article-header">
-        <div class="article-date">26 March 2026</div>
+        <div class="article-date">26 March 2026 &middot; Philosophy &middot; 5 min read</div>
         <h1>Why We Look Up</h1>
         <p class="article-subtitle">The ancient pull of the night sky</p>
       </div>
@@ -419,11 +809,78 @@
   </main>
 
   <footer>
-    &copy; 2026 Pale Blue Journal
+    &copy; 2026 Pale Blue Journal &middot; Background imagery courtesy of NASA/SVS &middot; Star data from ESA Hipparcos
   </footer>
 
   <script>
-    // Real star catalog + Perseid meteor shower simulation
+    // ===== ROTATING QUOTES =====
+    const quotes = [
+      { text: '"The cosmos is within us. We are made of star stuff. We are a way for the universe to know itself."', author: 'Carl Sagan' },
+      { text: '"The universe is not only queerer than we suppose, but queerer than we can suppose."', author: 'J.B.S. Haldane' },
+      { text: '"Somewhere, something incredible is waiting to be known."', author: 'Carl Sagan' },
+      { text: '"The important thing is not to stop questioning. Curiosity has its own reason for existing."', author: 'Albert Einstein' },
+      { text: '"We are just an advanced breed of monkeys on a minor planet of a very average star. But we can understand the universe. That makes us something very special."', author: 'Stephen Hawking' },
+      { text: '"The eternal silence of these infinite spaces frightens me."', author: 'Blaise Pascal' },
+      { text: '"Not only is the universe stranger than we imagine, it is stranger than we can imagine."', author: 'Sir Arthur Eddington' },
+      { text: '"Two things are infinite: the universe and human stupidity; and I am not sure about the universe."', author: 'Albert Einstein' },
+      { text: '"For small creatures such as we, the vastness is bearable only through love."', author: 'Carl Sagan' },
+      { text: '"The nitrogen in our DNA, the calcium in our teeth, the iron in our blood, the carbon in our apple pies were made in the interiors of collapsing stars."', author: 'Carl Sagan' },
+    ];
+
+    let currentQuote = 0;
+    function rotateQuote() {
+      const quoteEl = document.getElementById('hero-quote-text');
+      const authorEl = document.getElementById('hero-quote-author');
+      quoteEl.style.opacity = '0';
+      authorEl.style.opacity = '0';
+      setTimeout(() => {
+        currentQuote = (currentQuote + 1) % quotes.length;
+        quoteEl.textContent = quotes[currentQuote].text;
+        authorEl.textContent = quotes[currentQuote].author;
+        quoteEl.style.opacity = '1';
+        authorEl.style.opacity = '1';
+      }, 600);
+    }
+    setInterval(rotateQuote, 8000);
+
+    // ===== SIDEBAR =====
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+
+    // ===== CATEGORY FILTER =====
+    function filterCategory(cat) {
+      const cards = document.querySelectorAll('.article-card[data-category]');
+      cards.forEach(card => {
+        if (cat === 'all' || card.dataset.category === cat) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      toggleSidebar();
+      showPage('home');
+    }
+
+    // ===== NAVIGATION =====
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      const navLink = document.getElementById('nav-' + pageId);
+      if (navLink) navLink.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function showArticle(slug) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('article-' + slug).classList.add('active');
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      window.scrollTo(0, 0);
+    }
+
+    // ===== REAL STAR CATALOG + PERSEID METEOR SHOWER =====
     (function() {
       const canvas = document.getElementById('stars-canvas');
       const ctx = canvas.getContext('2d');
@@ -435,10 +892,7 @@
         placeStars();
       }
 
-      // Brightest stars from the Hipparcos catalog (name, RA hours, Dec degrees, apparent magnitude, colour)
-      // These are real coordinates for real stars visible from Earth
       const starCatalog = [
-        // Orion
         {name:'Betelgeuse', ra:5.92, dec:7.41, mag:0.42, color:[255,185,130]},
         {name:'Rigel', ra:5.24, dec:-8.20, mag:0.13, color:[180,210,255]},
         {name:'Bellatrix', ra:5.42, dec:6.35, mag:1.64, color:[180,200,255]},
@@ -446,7 +900,6 @@
         {name:'Alnilam', ra:5.60, dec:-1.20, mag:1.69, color:[180,210,255]},
         {name:'Alnitak', ra:5.68, dec:-1.94, mag:1.77, color:[180,200,255]},
         {name:'Saiph', ra:5.80, dec:-9.67, mag:2.09, color:[180,210,255]},
-        // Ursa Major (Big Dipper)
         {name:'Dubhe', ra:11.06, dec:61.75, mag:1.79, color:[255,200,150]},
         {name:'Merak', ra:11.03, dec:56.38, mag:2.37, color:[200,215,255]},
         {name:'Phecda', ra:11.90, dec:53.69, mag:2.44, color:[200,215,255]},
@@ -454,7 +907,6 @@
         {name:'Alioth', ra:12.90, dec:55.96, mag:1.77, color:[200,215,255]},
         {name:'Mizar', ra:13.40, dec:54.93, mag:2.27, color:[200,215,255]},
         {name:'Alkaid', ra:13.79, dec:49.31, mag:1.86, color:[180,200,255]},
-        // Bright stars across the sky
         {name:'Sirius', ra:6.75, dec:-16.72, mag:-1.46, color:[200,220,255]},
         {name:'Canopus', ra:6.40, dec:-52.70, mag:-0.74, color:[255,240,220]},
         {name:'Arcturus', ra:14.26, dec:19.18, mag:-0.05, color:[255,190,130]},
@@ -470,147 +922,85 @@
         {name:'Deneb', ra:20.69, dec:45.28, mag:1.25, color:[200,220,255]},
         {name:'Regulus', ra:10.14, dec:11.97, mag:1.35, color:[180,210,255]},
         {name:'Castor', ra:7.58, dec:31.89, mag:1.58, color:[200,215,255]},
-        // Scorpius
         {name:'Shaula', ra:17.56, dec:-37.10, mag:1.63, color:[180,200,255]},
         {name:'Sargas', ra:17.62, dec:-43.00, mag:1.87, color:[255,240,220]},
         {name:'Dschubba', ra:16.01, dec:-22.62, mag:2.32, color:[180,200,255]},
-        // Crux (Southern Cross)
         {name:'Acrux', ra:12.44, dec:-63.10, mag:0.76, color:[180,200,255]},
         {name:'Mimosa', ra:12.80, dec:-59.69, mag:1.25, color:[180,200,255]},
         {name:'Gacrux', ra:12.52, dec:-57.11, mag:1.63, color:[255,180,130]},
-        // Centaurus
         {name:'Alpha Centauri', ra:14.66, dec:-60.83, mag:-0.27, color:[255,240,220]},
         {name:'Hadar', ra:14.06, dec:-60.37, mag:0.61, color:[180,200,255]},
-        // Canis Major
         {name:'Wezen', ra:7.14, dec:-26.39, mag:1.84, color:[255,240,200]},
         {name:'Adhara', ra:6.98, dec:-28.97, mag:1.50, color:[180,200,255]},
-        // Gemini
         {name:'Alhena', ra:6.63, dec:16.40, mag:1.93, color:[200,215,255]},
-        // Leo
         {name:'Denebola', ra:11.82, dec:14.57, mag:2.14, color:[200,215,255]},
         {name:'Algieba', ra:10.33, dec:19.84, mag:2.28, color:[255,200,140]},
-        // Taurus
         {name:'Elnath', ra:5.44, dec:28.61, mag:1.65, color:[180,210,255]},
         {name:'Alcyone', ra:3.79, dec:24.11, mag:2.87, color:[180,200,255]},
-        // Cygnus
         {name:'Sadr', ra:20.37, dec:40.26, mag:2.20, color:[255,240,200]},
-        // Lyra
         {name:'Sheliak', ra:18.83, dec:33.36, mag:3.45, color:[200,215,255]},
-        // Perseus
         {name:'Mirfak', ra:3.41, dec:49.86, mag:1.80, color:[255,240,200]},
         {name:'Algol', ra:3.14, dec:40.96, mag:2.12, color:[180,210,255]},
-        // Cassiopeia
         {name:'Schedar', ra:0.68, dec:56.54, mag:2.23, color:[255,200,140]},
         {name:'Caph', ra:0.15, dec:59.15, mag:2.27, color:[255,240,220]},
         {name:'Navi', ra:0.95, dec:60.72, mag:2.47, color:[180,200,255]},
         {name:'Ruchbah', ra:1.43, dec:60.24, mag:2.68, color:[200,215,255]},
         {name:'Segin', ra:1.91, dec:63.67, mag:3.37, color:[180,200,255]},
-        // Andromeda
         {name:'Alpheratz', ra:0.14, dec:29.09, mag:2.06, color:[180,210,255]},
         {name:'Mirach', ra:1.16, dec:35.62, mag:2.05, color:[255,180,130]},
         {name:'Almach', ra:2.07, dec:42.33, mag:2.26, color:[255,200,140]},
-        // Pegasus
         {name:'Markab', ra:23.08, dec:15.21, mag:2.49, color:[180,210,255]},
         {name:'Scheat', ra:23.06, dec:28.08, mag:2.42, color:[255,180,130]},
         {name:'Algenib', ra:0.22, dec:15.18, mag:2.83, color:[180,200,255]},
-        // Aquila
         {name:'Tarazed', ra:19.77, dec:10.61, mag:2.72, color:[255,200,140]},
-        // Carina
         {name:'Miaplacidus', ra:9.22, dec:-69.72, mag:1.68, color:[200,215,255]},
         {name:'Avior', ra:8.38, dec:-59.51, mag:1.86, color:[255,200,140]},
-        // Bootes
         {name:'Izar', ra:14.75, dec:27.07, mag:2.37, color:[255,200,140]},
-        // Virgo
         {name:'Vindemiatrix', ra:13.04, dec:10.96, mag:2.83, color:[255,230,180]},
-        // Corona Borealis
         {name:'Alphecca', ra:15.58, dec:26.71, mag:2.24, color:[200,215,255]},
-        // Ophiuchus
         {name:'Rasalhague', ra:17.58, dec:12.56, mag:2.07, color:[200,215,255]},
-        // Sagittarius
         {name:'Kaus Australis', ra:18.40, dec:-34.38, mag:1.85, color:[180,200,255]},
         {name:'Nunki', ra:18.92, dec:-26.30, mag:2.02, color:[180,200,255]},
-        // Auriga
         {name:'Menkalinan', ra:6.00, dec:44.95, mag:1.90, color:[200,215,255]},
-        // Piscis Austrinus / Grus
         {name:'Alnair', ra:22.14, dec:-46.96, mag:1.74, color:[180,200,255]},
-        // Puppis
         {name:'Naos', ra:8.06, dec:-40.00, mag:2.25, color:[180,190,255]},
-        // Eridanus
         {name:'Achernar', ra:1.63, dec:-57.24, mag:0.46, color:[180,200,255]},
         {name:'Cursa', ra:5.13, dec:-5.09, mag:2.79, color:[200,215,255]},
       ];
 
-      // Convert RA/Dec to screen position using a simple equirectangular projection
       let placedStars = [];
       function placeStars() {
         placedStars = starCatalog.map(s => {
           const x = ((s.ra / 24) * W + W * 0.3) % W;
           const y = H * 0.5 - (s.dec / 180) * H * 0.9;
-          // Brighter stars = bigger radius (magnitude scale is inverted: lower = brighter)
           const radius = Math.max(0.5, 3.2 - s.mag * 0.7);
           const baseOpacity = Math.min(1, Math.max(0.3, 1.1 - s.mag * 0.18));
-          return {
-            ...s,
-            sx: x,
-            sy: y,
-            radius: radius,
-            baseOpacity: baseOpacity,
-            twinkleSpeed: 0.02 + Math.random() * 0.05,
-            phase: Math.random() * Math.PI * 2
-          };
+          return { ...s, sx: x, sy: y, radius, baseOpacity, twinkleSpeed: 0.02 + Math.random() * 0.05, phase: Math.random() * Math.PI * 2 };
         });
       }
 
-      // Perseid meteor shower simulation
-      // Real Perseid radiant: RA ~3h, Dec ~58 degrees (in Perseus)
-      const radiantRA = 3.0;
-      const radiantDec = 58.0;
+      const radiantRA = 3.0, radiantDec = 58.0;
       const meteors = [];
 
       function getRadiantScreen() {
-        const rx = ((radiantRA / 24) * W + W * 0.3) % W;
-        const ry = H * 0.5 - (radiantDec / 180) * H * 0.9;
-        return { x: rx, y: ry };
+        return { x: ((radiantRA / 24) * W + W * 0.3) % W, y: H * 0.5 - (radiantDec / 180) * H * 0.9 };
       }
 
       function spawnMeteor() {
         const radiant = getRadiantScreen();
-        // Meteors radiate outward from the radiant point (like real Perseids)
         const angle = Math.random() * Math.PI * 2;
-        // Start near the radiant but offset slightly
         const offsetDist = 30 + Math.random() * 80;
-        const startX = radiant.x + Math.cos(angle) * offsetDist;
-        const startY = radiant.y + Math.sin(angle) * offsetDist;
-
-        // Real Perseid meteors travel at ~59 km/s, creating long bright streaks
-        const speed = 4 + Math.random() * 6;
-        const length = 60 + Math.random() * 120;
-
-        // Slight colour variation (white to faint blue/green like real meteors)
-        const colors = [
-          [255, 255, 255],
-          [200, 230, 255],
-          [180, 255, 220],
-          [220, 240, 255],
-        ];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-
+        const colors = [[255,255,255],[200,230,255],[180,255,220],[220,240,255]];
         meteors.push({
-          x: startX,
-          y: startY,
-          angle: angle,
-          speed: speed,
-          length: length,
-          opacity: 0,
-          fadeIn: true,
-          maxOpacity: 0.6 + Math.random() * 0.4,
-          color: color,
-          life: 0,
-          maxLife: 60 + Math.random() * 60
+          x: radiant.x + Math.cos(angle) * offsetDist,
+          y: radiant.y + Math.sin(angle) * offsetDist,
+          angle, speed: 4 + Math.random() * 6, length: 60 + Math.random() * 120,
+          opacity: 0, fadeIn: true, maxOpacity: 0.6 + Math.random() * 0.4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          life: 0, maxLife: 60 + Math.random() * 60
         });
       }
 
-      // Spawn meteors at irregular intervals (like a real shower)
       function scheduleMeteor() {
         spawnMeteor();
         setTimeout(scheduleMeteor, 2000 + Math.random() * 6000);
@@ -621,12 +1011,9 @@
         ctx.clearRect(0, 0, W, H);
         const time = Date.now() * 0.001;
 
-        // Draw catalog stars with realistic twinkling
         for (const star of placedStars) {
           const twinkle = Math.sin(time * star.twinkleSpeed * 60 + star.phase);
           const opacity = star.baseOpacity * (0.3 + 0.7 * ((twinkle + 1) / 2));
-
-          // Glow for bright stars
           if (star.radius > 1.8) {
             ctx.beginPath();
             ctx.arc(star.sx, star.sy, star.radius * 3, 0, Math.PI * 2);
@@ -636,67 +1023,38 @@
             ctx.fillStyle = glow;
             ctx.fill();
           }
-
-          // Star point
           ctx.beginPath();
           ctx.arc(star.sx, star.sy, star.radius, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(${star.color[0]},${star.color[1]},${star.color[2]},${opacity})`;
           ctx.fill();
         }
 
-        // Draw Perseid meteors
         for (let i = meteors.length - 1; i >= 0; i--) {
           const m = meteors[i];
           m.life++;
+          if (m.fadeIn) { m.opacity += 0.08; if (m.opacity >= m.maxOpacity) { m.opacity = m.maxOpacity; m.fadeIn = false; } }
+          else if (m.life > m.maxLife * 0.6) { m.opacity -= 0.02; }
 
-          // Fade in then fade out (like real meteors heating up then burning out)
-          if (m.fadeIn) {
-            m.opacity += 0.08;
-            if (m.opacity >= m.maxOpacity) {
-              m.opacity = m.maxOpacity;
-              m.fadeIn = false;
-            }
-          } else if (m.life > m.maxLife * 0.6) {
-            m.opacity -= 0.02;
-          }
+          const hX = m.x, hY = m.y;
+          const tX = m.x - Math.cos(m.angle) * m.length, tY = m.y - Math.sin(m.angle) * m.length;
+          const grad = ctx.createLinearGradient(tX, tY, hX, hY);
+          grad.addColorStop(0, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},0)`);
+          grad.addColorStop(0.7, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity * 0.5})`);
+          grad.addColorStop(1, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity})`);
+          ctx.beginPath(); ctx.moveTo(tX, tY); ctx.lineTo(hX, hY);
+          ctx.strokeStyle = grad; ctx.lineWidth = 1.5; ctx.stroke();
 
-          const headX = m.x;
-          const headY = m.y;
-          const tailX = m.x - Math.cos(m.angle) * m.length;
-          const tailY = m.y - Math.sin(m.angle) * m.length;
+          ctx.beginPath(); ctx.arc(hX, hY, 2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${m.opacity})`; ctx.fill();
 
-          // Main trail with gradient
-          const gradient = ctx.createLinearGradient(tailX, tailY, headX, headY);
-          gradient.addColorStop(0, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},0)`);
-          gradient.addColorStop(0.7, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity * 0.5})`);
-          gradient.addColorStop(1, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity})`);
+          const hg = ctx.createRadialGradient(hX, hY, 0, hX, hY, 6);
+          hg.addColorStop(0, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity * 0.3})`);
+          hg.addColorStop(1, 'transparent');
+          ctx.beginPath(); ctx.arc(hX, hY, 6, 0, Math.PI * 2);
+          ctx.fillStyle = hg; ctx.fill();
 
-          ctx.beginPath();
-          ctx.moveTo(tailX, tailY);
-          ctx.lineTo(headX, headY);
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-
-          // Bright head (the meteoroid burning up)
-          ctx.beginPath();
-          ctx.arc(headX, headY, 2, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255,255,255,${m.opacity})`;
-          ctx.fill();
-
-          // Faint wide glow around the head
-          const headGlow = ctx.createRadialGradient(headX, headY, 0, headX, headY, 6);
-          headGlow.addColorStop(0, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity * 0.3})`);
-          headGlow.addColorStop(1, 'transparent');
-          ctx.beginPath();
-          ctx.arc(headX, headY, 6, 0, Math.PI * 2);
-          ctx.fillStyle = headGlow;
-          ctx.fill();
-
-          // Move
           m.x += Math.cos(m.angle) * m.speed;
           m.y += Math.sin(m.angle) * m.speed;
-
           if (m.opacity <= 0 || m.life > m.maxLife || m.x < -100 || m.x > W + 100 || m.y < -100 || m.y > H + 100) {
             meteors.splice(i, 1);
           }
@@ -709,30 +1067,6 @@
       window.addEventListener('resize', resize);
       animate();
     })();
-
-    function showPage(pageId) {
-      // Hide all pages
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      // Show target page
-      document.getElementById('page-' + pageId).classList.add('active');
-      // Update nav
-      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-      const navLink = document.getElementById('nav-' + pageId);
-      if (navLink) navLink.classList.add('active');
-      // Scroll to top
-      window.scrollTo(0, 0);
-    }
-
-    function showArticle(slug) {
-      // Hide all pages
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      // Show article
-      document.getElementById('article-' + slug).classList.add('active');
-      // Update nav
-      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-      // Scroll to top
-      window.scrollTo(0, 0);
-    }
   </script>
 
 </body>
