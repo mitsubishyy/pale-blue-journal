@@ -33,6 +33,18 @@
       min-height: 100vh;
     }
 
+    /* NASA starmap background */
+    #nasa-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://svs.gsfc.nasa.gov/vis/a000000/a004800/a004856/starmap_random_2020_4k_gal_print.jpg') center center / cover no-repeat;
+      opacity: 0.25;
+      z-index: 0;
+    }
+
     /* Stars canvas */
     #stars-canvas {
       position: fixed;
@@ -295,6 +307,7 @@
 </head>
 <body>
 
+  <div id="nasa-bg"></div>
   <canvas id="stars-canvas"></canvas>
 
   <header>
@@ -410,98 +423,290 @@
   </footer>
 
   <script>
-    // Animated stars and shooting stars
+    // Real star catalog + Perseid meteor shower simulation
     (function() {
       const canvas = document.getElementById('stars-canvas');
       const ctx = canvas.getContext('2d');
 
+      let W, H;
       function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        placeStars();
       }
-      resize();
-      window.addEventListener('resize', resize);
 
-      // Create twinkling stars
-      const stars = [];
-      for (let i = 0; i < 200; i++) {
-        stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          radius: Math.random() * 1.8 + 0.3,
-          opacity: Math.random() * 0.8 + 0.2,
-          twinkleSpeed: Math.random() * 0.06 + 0.02,
-          phase: Math.random() * Math.PI * 2
+      // Brightest stars from the Hipparcos catalog (name, RA hours, Dec degrees, apparent magnitude, colour)
+      // These are real coordinates for real stars visible from Earth
+      const starCatalog = [
+        // Orion
+        {name:'Betelgeuse', ra:5.92, dec:7.41, mag:0.42, color:[255,185,130]},
+        {name:'Rigel', ra:5.24, dec:-8.20, mag:0.13, color:[180,210,255]},
+        {name:'Bellatrix', ra:5.42, dec:6.35, mag:1.64, color:[180,200,255]},
+        {name:'Mintaka', ra:5.53, dec:-0.30, mag:2.23, color:[180,210,255]},
+        {name:'Alnilam', ra:5.60, dec:-1.20, mag:1.69, color:[180,210,255]},
+        {name:'Alnitak', ra:5.68, dec:-1.94, mag:1.77, color:[180,200,255]},
+        {name:'Saiph', ra:5.80, dec:-9.67, mag:2.09, color:[180,210,255]},
+        // Ursa Major (Big Dipper)
+        {name:'Dubhe', ra:11.06, dec:61.75, mag:1.79, color:[255,200,150]},
+        {name:'Merak', ra:11.03, dec:56.38, mag:2.37, color:[200,215,255]},
+        {name:'Phecda', ra:11.90, dec:53.69, mag:2.44, color:[200,215,255]},
+        {name:'Megrez', ra:12.26, dec:57.03, mag:3.31, color:[200,215,255]},
+        {name:'Alioth', ra:12.90, dec:55.96, mag:1.77, color:[200,215,255]},
+        {name:'Mizar', ra:13.40, dec:54.93, mag:2.27, color:[200,215,255]},
+        {name:'Alkaid', ra:13.79, dec:49.31, mag:1.86, color:[180,200,255]},
+        // Bright stars across the sky
+        {name:'Sirius', ra:6.75, dec:-16.72, mag:-1.46, color:[200,220,255]},
+        {name:'Canopus', ra:6.40, dec:-52.70, mag:-0.74, color:[255,240,220]},
+        {name:'Arcturus', ra:14.26, dec:19.18, mag:-0.05, color:[255,190,130]},
+        {name:'Vega', ra:18.62, dec:38.78, mag:0.03, color:[200,215,255]},
+        {name:'Capella', ra:5.28, dec:46.00, mag:0.08, color:[255,230,180]},
+        {name:'Procyon', ra:7.66, dec:5.22, mag:0.34, color:[255,245,230]},
+        {name:'Altair', ra:19.85, dec:8.87, mag:0.76, color:[240,240,255]},
+        {name:'Aldebaran', ra:4.60, dec:16.51, mag:0.85, color:[255,170,100]},
+        {name:'Spica', ra:13.42, dec:-11.16, mag:0.97, color:[180,200,255]},
+        {name:'Antares', ra:16.49, dec:-26.43, mag:1.09, color:[255,150,100]},
+        {name:'Pollux', ra:7.76, dec:28.03, mag:1.14, color:[255,210,160]},
+        {name:'Fomalhaut', ra:22.96, dec:-29.62, mag:1.16, color:[200,215,255]},
+        {name:'Deneb', ra:20.69, dec:45.28, mag:1.25, color:[200,220,255]},
+        {name:'Regulus', ra:10.14, dec:11.97, mag:1.35, color:[180,210,255]},
+        {name:'Castor', ra:7.58, dec:31.89, mag:1.58, color:[200,215,255]},
+        // Scorpius
+        {name:'Shaula', ra:17.56, dec:-37.10, mag:1.63, color:[180,200,255]},
+        {name:'Sargas', ra:17.62, dec:-43.00, mag:1.87, color:[255,240,220]},
+        {name:'Dschubba', ra:16.01, dec:-22.62, mag:2.32, color:[180,200,255]},
+        // Crux (Southern Cross)
+        {name:'Acrux', ra:12.44, dec:-63.10, mag:0.76, color:[180,200,255]},
+        {name:'Mimosa', ra:12.80, dec:-59.69, mag:1.25, color:[180,200,255]},
+        {name:'Gacrux', ra:12.52, dec:-57.11, mag:1.63, color:[255,180,130]},
+        // Centaurus
+        {name:'Alpha Centauri', ra:14.66, dec:-60.83, mag:-0.27, color:[255,240,220]},
+        {name:'Hadar', ra:14.06, dec:-60.37, mag:0.61, color:[180,200,255]},
+        // Canis Major
+        {name:'Wezen', ra:7.14, dec:-26.39, mag:1.84, color:[255,240,200]},
+        {name:'Adhara', ra:6.98, dec:-28.97, mag:1.50, color:[180,200,255]},
+        // Gemini
+        {name:'Alhena', ra:6.63, dec:16.40, mag:1.93, color:[200,215,255]},
+        // Leo
+        {name:'Denebola', ra:11.82, dec:14.57, mag:2.14, color:[200,215,255]},
+        {name:'Algieba', ra:10.33, dec:19.84, mag:2.28, color:[255,200,140]},
+        // Taurus
+        {name:'Elnath', ra:5.44, dec:28.61, mag:1.65, color:[180,210,255]},
+        {name:'Alcyone', ra:3.79, dec:24.11, mag:2.87, color:[180,200,255]},
+        // Cygnus
+        {name:'Sadr', ra:20.37, dec:40.26, mag:2.20, color:[255,240,200]},
+        // Lyra
+        {name:'Sheliak', ra:18.83, dec:33.36, mag:3.45, color:[200,215,255]},
+        // Perseus
+        {name:'Mirfak', ra:3.41, dec:49.86, mag:1.80, color:[255,240,200]},
+        {name:'Algol', ra:3.14, dec:40.96, mag:2.12, color:[180,210,255]},
+        // Cassiopeia
+        {name:'Schedar', ra:0.68, dec:56.54, mag:2.23, color:[255,200,140]},
+        {name:'Caph', ra:0.15, dec:59.15, mag:2.27, color:[255,240,220]},
+        {name:'Navi', ra:0.95, dec:60.72, mag:2.47, color:[180,200,255]},
+        {name:'Ruchbah', ra:1.43, dec:60.24, mag:2.68, color:[200,215,255]},
+        {name:'Segin', ra:1.91, dec:63.67, mag:3.37, color:[180,200,255]},
+        // Andromeda
+        {name:'Alpheratz', ra:0.14, dec:29.09, mag:2.06, color:[180,210,255]},
+        {name:'Mirach', ra:1.16, dec:35.62, mag:2.05, color:[255,180,130]},
+        {name:'Almach', ra:2.07, dec:42.33, mag:2.26, color:[255,200,140]},
+        // Pegasus
+        {name:'Markab', ra:23.08, dec:15.21, mag:2.49, color:[180,210,255]},
+        {name:'Scheat', ra:23.06, dec:28.08, mag:2.42, color:[255,180,130]},
+        {name:'Algenib', ra:0.22, dec:15.18, mag:2.83, color:[180,200,255]},
+        // Aquila
+        {name:'Tarazed', ra:19.77, dec:10.61, mag:2.72, color:[255,200,140]},
+        // Carina
+        {name:'Miaplacidus', ra:9.22, dec:-69.72, mag:1.68, color:[200,215,255]},
+        {name:'Avior', ra:8.38, dec:-59.51, mag:1.86, color:[255,200,140]},
+        // Bootes
+        {name:'Izar', ra:14.75, dec:27.07, mag:2.37, color:[255,200,140]},
+        // Virgo
+        {name:'Vindemiatrix', ra:13.04, dec:10.96, mag:2.83, color:[255,230,180]},
+        // Corona Borealis
+        {name:'Alphecca', ra:15.58, dec:26.71, mag:2.24, color:[200,215,255]},
+        // Ophiuchus
+        {name:'Rasalhague', ra:17.58, dec:12.56, mag:2.07, color:[200,215,255]},
+        // Sagittarius
+        {name:'Kaus Australis', ra:18.40, dec:-34.38, mag:1.85, color:[180,200,255]},
+        {name:'Nunki', ra:18.92, dec:-26.30, mag:2.02, color:[180,200,255]},
+        // Auriga
+        {name:'Menkalinan', ra:6.00, dec:44.95, mag:1.90, color:[200,215,255]},
+        // Piscis Austrinus / Grus
+        {name:'Alnair', ra:22.14, dec:-46.96, mag:1.74, color:[180,200,255]},
+        // Puppis
+        {name:'Naos', ra:8.06, dec:-40.00, mag:2.25, color:[180,190,255]},
+        // Eridanus
+        {name:'Achernar', ra:1.63, dec:-57.24, mag:0.46, color:[180,200,255]},
+        {name:'Cursa', ra:5.13, dec:-5.09, mag:2.79, color:[200,215,255]},
+      ];
+
+      // Convert RA/Dec to screen position using a simple equirectangular projection
+      let placedStars = [];
+      function placeStars() {
+        placedStars = starCatalog.map(s => {
+          const x = ((s.ra / 24) * W + W * 0.3) % W;
+          const y = H * 0.5 - (s.dec / 180) * H * 0.9;
+          // Brighter stars = bigger radius (magnitude scale is inverted: lower = brighter)
+          const radius = Math.max(0.5, 3.2 - s.mag * 0.7);
+          const baseOpacity = Math.min(1, Math.max(0.3, 1.1 - s.mag * 0.18));
+          return {
+            ...s,
+            sx: x,
+            sy: y,
+            radius: radius,
+            baseOpacity: baseOpacity,
+            twinkleSpeed: 0.02 + Math.random() * 0.05,
+            phase: Math.random() * Math.PI * 2
+          };
         });
       }
 
-      // Shooting stars
-      const shootingStars = [];
+      // Perseid meteor shower simulation
+      // Real Perseid radiant: RA ~3h, Dec ~58 degrees (in Perseus)
+      const radiantRA = 3.0;
+      const radiantDec = 58.0;
+      const meteors = [];
 
-      function spawnShootingStar() {
-        shootingStars.push({
-          x: Math.random() * canvas.width * 0.8,
-          y: Math.random() * canvas.height * 0.4,
-          length: Math.random() * 80 + 40,
-          speed: Math.random() * 4 + 3,
-          opacity: 1,
-          angle: Math.PI / 4 + (Math.random() * 0.3 - 0.15)
+      function getRadiantScreen() {
+        const rx = ((radiantRA / 24) * W + W * 0.3) % W;
+        const ry = H * 0.5 - (radiantDec / 180) * H * 0.9;
+        return { x: rx, y: ry };
+      }
+
+      function spawnMeteor() {
+        const radiant = getRadiantScreen();
+        // Meteors radiate outward from the radiant point (like real Perseids)
+        const angle = Math.random() * Math.PI * 2;
+        // Start near the radiant but offset slightly
+        const offsetDist = 30 + Math.random() * 80;
+        const startX = radiant.x + Math.cos(angle) * offsetDist;
+        const startY = radiant.y + Math.sin(angle) * offsetDist;
+
+        // Real Perseid meteors travel at ~59 km/s, creating long bright streaks
+        const speed = 4 + Math.random() * 6;
+        const length = 60 + Math.random() * 120;
+
+        // Slight colour variation (white to faint blue/green like real meteors)
+        const colors = [
+          [255, 255, 255],
+          [200, 230, 255],
+          [180, 255, 220],
+          [220, 240, 255],
+        ];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        meteors.push({
+          x: startX,
+          y: startY,
+          angle: angle,
+          speed: speed,
+          length: length,
+          opacity: 0,
+          fadeIn: true,
+          maxOpacity: 0.6 + Math.random() * 0.4,
+          color: color,
+          life: 0,
+          maxLife: 60 + Math.random() * 60
         });
       }
 
-      // Spawn a shooting star every 3 to 7 seconds
-      setInterval(spawnShootingStar, Math.random() * 4000 + 3000);
-      setInterval(spawnShootingStar, 5000);
+      // Spawn meteors at irregular intervals (like a real shower)
+      function scheduleMeteor() {
+        spawnMeteor();
+        setTimeout(scheduleMeteor, 2000 + Math.random() * 6000);
+      }
+      setTimeout(scheduleMeteor, 1000);
 
       function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw twinkling stars
+        ctx.clearRect(0, 0, W, H);
         const time = Date.now() * 0.001;
-        for (const star of stars) {
+
+        // Draw catalog stars with realistic twinkling
+        for (const star of placedStars) {
           const twinkle = Math.sin(time * star.twinkleSpeed * 60 + star.phase);
-          const opacity = star.opacity * (0.2 + 0.8 * ((twinkle + 1) / 2));
+          const opacity = star.baseOpacity * (0.3 + 0.7 * ((twinkle + 1) / 2));
+
+          // Glow for bright stars
+          if (star.radius > 1.8) {
+            ctx.beginPath();
+            ctx.arc(star.sx, star.sy, star.radius * 3, 0, Math.PI * 2);
+            const glow = ctx.createRadialGradient(star.sx, star.sy, 0, star.sx, star.sy, star.radius * 3);
+            glow.addColorStop(0, `rgba(${star.color[0]},${star.color[1]},${star.color[2]},${opacity * 0.15})`);
+            glow.addColorStop(1, 'transparent');
+            ctx.fillStyle = glow;
+            ctx.fill();
+          }
+
+          // Star point
           ctx.beginPath();
-          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.arc(star.sx, star.sy, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${star.color[0]},${star.color[1]},${star.color[2]},${opacity})`;
           ctx.fill();
         }
 
-        // Draw and update shooting stars
-        for (let i = shootingStars.length - 1; i >= 0; i--) {
-          const s = shootingStars[i];
-          const tailX = s.x - Math.cos(s.angle) * s.length;
-          const tailY = s.y - Math.sin(s.angle) * s.length;
+        // Draw Perseid meteors
+        for (let i = meteors.length - 1; i >= 0; i--) {
+          const m = meteors[i];
+          m.life++;
 
-          const gradient = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
-          gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-          gradient.addColorStop(1, `rgba(255, 255, 255, ${s.opacity})`);
+          // Fade in then fade out (like real meteors heating up then burning out)
+          if (m.fadeIn) {
+            m.opacity += 0.08;
+            if (m.opacity >= m.maxOpacity) {
+              m.opacity = m.maxOpacity;
+              m.fadeIn = false;
+            }
+          } else if (m.life > m.maxLife * 0.6) {
+            m.opacity -= 0.02;
+          }
+
+          const headX = m.x;
+          const headY = m.y;
+          const tailX = m.x - Math.cos(m.angle) * m.length;
+          const tailY = m.y - Math.sin(m.angle) * m.length;
+
+          // Main trail with gradient
+          const gradient = ctx.createLinearGradient(tailX, tailY, headX, headY);
+          gradient.addColorStop(0, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},0)`);
+          gradient.addColorStop(0.7, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity * 0.5})`);
+          gradient.addColorStop(1, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity})`);
 
           ctx.beginPath();
           ctx.moveTo(tailX, tailY);
-          ctx.lineTo(s.x, s.y);
+          ctx.lineTo(headX, headY);
           ctx.strokeStyle = gradient;
           ctx.lineWidth = 1.5;
           ctx.stroke();
 
-          // Small bright head
+          // Bright head (the meteoroid burning up)
           ctx.beginPath();
-          ctx.arc(s.x, s.y, 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(200, 220, 255, ${s.opacity})`;
+          ctx.arc(headX, headY, 2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${m.opacity})`;
           ctx.fill();
 
-          s.x += Math.cos(s.angle) * s.speed;
-          s.y += Math.sin(s.angle) * s.speed;
-          s.opacity -= 0.008;
+          // Faint wide glow around the head
+          const headGlow = ctx.createRadialGradient(headX, headY, 0, headX, headY, 6);
+          headGlow.addColorStop(0, `rgba(${m.color[0]},${m.color[1]},${m.color[2]},${m.opacity * 0.3})`);
+          headGlow.addColorStop(1, 'transparent');
+          ctx.beginPath();
+          ctx.arc(headX, headY, 6, 0, Math.PI * 2);
+          ctx.fillStyle = headGlow;
+          ctx.fill();
 
-          if (s.opacity <= 0 || s.x > canvas.width || s.y > canvas.height) {
-            shootingStars.splice(i, 1);
+          // Move
+          m.x += Math.cos(m.angle) * m.speed;
+          m.y += Math.sin(m.angle) * m.speed;
+
+          if (m.opacity <= 0 || m.life > m.maxLife || m.x < -100 || m.x > W + 100 || m.y < -100 || m.y > H + 100) {
+            meteors.splice(i, 1);
           }
         }
 
         requestAnimationFrame(animate);
       }
 
+      resize();
+      window.addEventListener('resize', resize);
       animate();
     })();
 
